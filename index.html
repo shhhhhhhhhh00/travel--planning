@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新しい旅行 - Travel Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container fade-in">
+        <header class="header-bg">
+            <div class="container"
+                style="display: flex; align-items: center; justify-content: space-between; padding-top: 0; padding-bottom: 0;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="goHome()" class="btn btn-outline"
+                        style="padding: 0.5rem; width: 40px; height: 40px; border-radius: 50%;">
+                        <i class="fa-solid fa-house"></i>
+                    </button>
+                    <div
+                        style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--text-main);">
+                        <i class="fa-solid fa-plane-departure"
+                            style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                        Travel<span style="color: var(--primary-color);">Plan</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div id="user-info" style="display: none; align-items: center; gap: 0.5rem; margin-right: 0.5rem;">
+                        <img id="user-photo" src=""
+                            style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border-color);">
+                        <span id="user-name"
+                            style="font-size: 0.8rem; color: var(--text-secondary); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                    </div>
+                    <button id="login-btn" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                        <i class="fa-brands fa-google" style="margin-right: 0.3rem;"></i> ログイン
+                    </button>
+                    <button id="logout-btn" class="btn btn-outline"
+                        style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                        ログアウト
+                    </button>
+                    <button id="new-trip-btn" class="btn btn-outline"
+                        style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                        <i class="fa-solid fa-plus" style="margin-right: 0.3rem;"></i> リセット
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="card">
+            <form id="basic-info-form">
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">旅行タイトル</label>
+                    <input type="text" id="trip-title" placeholder="例: 沖縄家族旅行 2024" required
+                        style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label
+                            style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);"><i
+                                class="fa-solid fa-plane-departure"
+                                style="color: var(--primary-color); margin-right: 5px;"></i> 出発地</label>
+                        <input type="text" id="departure" placeholder="例: 東京" required
+                            style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none;">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);"><i
+                                class="fa-solid fa-location-dot"
+                                style="color: var(--secondary-color); margin-right: 5px;"></i> 目的地</label>
+                        <input type="text" id="destination" placeholder="例: 沖縄" required
+                            style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);"><i
+                            class="fa-solid fa-house" style="color: #F59E0B; margin-right: 5px;"></i> 宿泊地（任意）</label>
+                    <input type="text" id="accommodation" placeholder="例: ザ・ブセナテラス"
+                        style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div>
+                        <label
+                            style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">出発日（任意）</label>
+                        <input type="date" id="start-date"
+                            style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none; color: var(--text-secondary);">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">帰着日（任意）</label>
+                        <input type="date" id="end-date"
+                            style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem; outline: none; color: var(--text-secondary);">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn btn-primary"
+                    style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                    日程を作成する
+                </button>
+            </form>
+        </main>
+    </div>
+    <script src="js/app.js"></script>
+    <script type="module">
+        import { initAuth, signIn, logOut } from './js/sync.js';
+
+        // Auth Logic
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userInfo = document.getElementById('user-info');
+        const userName = document.getElementById('user-name');
+        const userPhoto = document.getElementById('user-photo');
+
+        initAuth((user) => {
+            if (user) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                userInfo.style.display = 'flex';
+                userName.textContent = user.displayName;
+                userPhoto.src = user.photoURL;
+                // ブラウザをリロードしてデータをFirebaseから取得
+                if (!window.initialLoadDone) {
+                    window.initialLoadDone = true;
+                    loadLocalData();
+                }
+            } else {
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                userInfo.style.display = 'none';
+            }
+        });
+
+        loginBtn.addEventListener('click', signIn);
+        logoutBtn.addEventListener('click', logOut);
+
+        // Page specific logic
+        const loadLocalData = async () => {
+            const existingData = await getTripData();
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (existingData) {
+                document.getElementById('trip-title').value = existingData.title || '';
+                document.getElementById('departure').value = existingData.departure || '';
+                document.getElementById('destination').value = existingData.destination || '';
+                document.getElementById('accommodation').value = existingData.accommodation || '';
+                document.getElementById('start-date').value = existingData.startDate || '';
+                document.getElementById('end-date').value = existingData.endDate || '';
+                submitBtn.textContent = '基本情報を更新する';
+            }
+        };
+
+        loadLocalData();
+
+        document.getElementById('new-trip-btn').addEventListener('click', async () => {
+            if (confirm('現在の旅程を保存して、新しく作成しますか？')) {
+                await startNewTrip();
+                location.reload();
+            }
+        });
+
+        document.getElementById('basic-info-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const existingData = await getTripData();
+            const tripData = existingData || {
+                days: [{ items: [] }]
+            };
+
+            tripData.title = document.getElementById('trip-title').value;
+            tripData.departure = document.getElementById('departure').value;
+            tripData.destination = document.getElementById('destination').value;
+            tripData.accommodation = document.getElementById('accommodation').value;
+            tripData.startDate = document.getElementById('start-date').value;
+            tripData.endDate = document.getElementById('end-date').value;
+
+            await saveTripData(tripData);
+            window.location.href = 'planner.html';
+        });
+    </script>
+</body>
+
+</html>
