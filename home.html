@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホーム - Travel Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .history-info h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .history-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 2px dashed var(--border-color);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header-bg">
+        <div class="container"
+            style="display: flex; align-items: center; justify-content: space-between; padding-top: 0; padding-bottom: 0;">
+            <div
+                style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--text-main);">
+                <i class="fa-solid fa-plane-departure" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                Travel<span style="color: var(--primary-color);">Plan</span>
+            </div>
+            <button onclick="createNewTrip()" class="btn btn-primary btn-small">
+                <i class="fa-solid fa-plus" style="margin-right: 0.5rem;"></i> 新しい旅行を計画
+            </button>
+        </div>
+    </header>
+
+    <div class="container fade-in">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem;">
+            <h1 style="font-size: 2rem;">マイトリップ</h1>
+            <p id="history-count" style="color: var(--text-secondary); font-size: 0.9rem;"></p>
+        </div>
+
+        <div id="history-list" class="history-grid">
+            <!-- History items will be rendered here -->
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/home.js"></script>
+</body>
+
+</html>
