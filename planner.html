@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行計画 - Travel Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Page Planner Specific Styles */
+        .header-bg {
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .trip-info-card {
+            background: linear-gradient(135deg, var(--surface-color), #F0F9FF);
+            margin-bottom: 2rem;
+        }
+
+        .day-container {
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .day-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 0;
+            border-left: 2px dashed var(--border-color);
+            margin-left: 6.5rem;
+            /* Increased for time space */
+            min-height: 60px;
+            margin-right: 1rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            margin-left: -5rem;
+            /* Reach further left */
+            padding-left: 6.5rem;
+            /* Counteract margin + alignment */
+            display: flex;
+            align-items: flex-start;
+        }
+
+        /* Sortable Fallback Style */
+        .sortable-fallback {
+            opacity: 0.8;
+            transform: scale(1.02);
+            box-shadow: var(--shadow-lg);
+            cursor: grabbing;
+        }
+
+        /* Marker logic changed from ::before to real element for Drag Handle */
+        .timeline-marker {
+            position: absolute;
+            left: 4.5rem;
+            /* Centered on border at 6.5rem total (item starts at 1.5rem, marker 4.5rem from start = 6.0rem. If marker is 1rem wide, left edge 6.0, right 7.0? No, let's fix calculation) */
+            /* Item starts at: margin-left: 6.5 - 5 = 1.5rem */
+            /* Border is at: 6.5rem */
+            /* Distance border from item start: 6.5 - 1.5 = 5.0rem */
+            /* Marker width: 1.0rem. Left edge should be at 5.0 - 0.5 = 4.5rem relative to item */
+            left: 4.5rem;
+            top: 1rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            z-index: 10;
+            cursor: grab;
+            transition: transform 0.2s;
+        }
+
+        .timeline-time {
+            position: absolute;
+            left: 0;
+            width: 4rem;
+            /* Space to the left of the marker */
+            text-align: right;
+            top: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            line-height: 1.2;
+        }
+
+        .timeline-marker:active {
+            cursor: grabbing;
+            transform: scale(1.2);
+        }
+
+        .timeline-item.event .timeline-marker {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+        }
+
+        .timeline-item.transport .timeline-marker {
+            border-color: var(--text-light);
+            background: var(--surface-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            width: 1.5rem;
+            height: 1.5rem;
+            /* Center 1.5rem marker on border: left edge at 5.0 - 0.75 = 4.25rem */
+            left: 4.25rem;
+            top: 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .item-card {
+            background: var(--surface-color);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            /* Ensure card takes full width */
+            width: 100%;
+        }
+
+        .item-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .add-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-left: 2rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #F0FDFA;
+        }
+
+        /* Reordering buttons */
+        .order-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-left: 1rem;
+        }
+
+        .order-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+        }
+
+        .order-btn:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: #F0FDFA;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header-bg">
+        <div class="container"
+            style="display: flex; align-items: center; justify-content: space-between; padding-top: 0; padding-bottom: 0;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button onclick="goHome()" class="btn btn-outline"
+                    style="padding: 0.5rem; width: 40px; height: 40px; border-radius: 50%;">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+                <div
+                    style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--text-main);">
+                    <i class="fa-solid fa-plane-departure"
+                        style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                    Travel<span style="color: var(--primary-color);">Plan</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="index.html" class="btn btn-outline" style="font-size: 0.9rem;">
+                    <i class="fa-solid fa-pen" style="margin-right: 0.5rem;"></i> 基本情報
+                </a>
+                <a href="summary.html" class="btn btn-primary" style="font-size: 0.9rem;">
+                    作成完了 <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div id="trip-header" class="card trip-info-card">
+            <!-- Populated by JS -->
+        </div>
+
+        <div id="days-wrapper">
+            <!-- Days will be rendered here -->
+        </div>
+
+        <button id="add-day-btn" class="btn btn-outline" style="width: 100%; padding: 1rem; border-style: dashed;">
+            <i class="fa-solid fa-plus"></i> 新しい日程を追加
+        </button>
+    </div>
+
+    <!-- Modals -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem;">予定を追加</h3>
+            <form id="event-form">
+                <input type="hidden" id="event-day-index">
+                <div class="input-group">
+                    <label>タイトル</label>
+                    <input type="text" id="event-title" required placeholder="例: 美ら海水族館">
+                </div>
+                <div class="input-group">
+                    <label>場所 (マップ表示用・任意)</label>
+                    <input type="text" id="event-location" placeholder="例: 美ら海水族館">
+                </div>
+                <div class="input-group">
+                    <label>住所 (正確なマップピン用・推奨)</label>
+                    <input type="text" id="event-address" placeholder="例: 沖縄県国頭郡本部町石川424">
+                </div>
+                <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label>カテゴリー</label>
+                        <select id="event-category">
+                            <option value="">(なし)</option>
+                            <option value="入場料">🎟️ 入場料</option>
+                            <option value="駐車料">🅿️ 駐車料</option>
+                            <option value="食費">🍴 食費</option>
+                            <option value="宿泊料">🏨 宿泊料</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>金額 (¥)</label>
+                        <input type="number" id="event-price" placeholder="1000">
+                    </div>
+                </div>
+                <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label>到着時間 (任意)</label>
+                        <input type="text" id="event-arrival-time" placeholder="10:30">
+                    </div>
+                    <div>
+                        <label>出発時間 (任意)</label>
+                        <input type="text" id="event-departure-time" placeholder="09:00">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>メモ (任意)</label>
+                    <textarea id="event-memo" rows="3" placeholder="服装、チケット情報など"
+                        style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: 'Inter', sans-serif; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('event-modal')">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">追加する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="transport-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem;">交通手段を追加</h3>
+            <form id="transport-form">
+                <input type="hidden" id="transport-day-index">
+                <div class="input-group">
+                    <label>交通手段名</label>
+                    <input type="text" id="trans-name" required placeholder="例: レンタカー">
+                </div>
+                <div class="input-group">
+                    <label>アイコン</label>
+                    <select id="trans-icon">
+                        <option value="car">🚗 車</option>
+                        <option value="train">🚃 電車</option>
+                        <option value="plane">✈️ 飛行機</option>
+                        <option value="bus">🚌 バス</option>
+                        <option value="ship">🚢 船</option>
+                        <option value="person-walking">🚶 徒歩</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>ラインカラー</label>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <!-- Presets -->
+                        <div class="color-option" data-color="#8D6E63" style="background: #8D6E63;"></div>
+                        <!-- Brown -->
+                        <div class="color-option" data-color="#5D4037" style="background: #5D4037;"></div>
+                        <!-- Dark Brown -->
+                        <div class="color-option" data-color="#558B2F" style="background: #558B2F;"></div>
+                        <!-- Olive -->
+                        <div class="color-option" data-color="#455A64" style="background: #455A64;"></div> <!-- Navy -->
+                        <div class="color-option" data-color="#78909C" style="background: #78909C;"></div>
+                        <!-- Slate -->
+                        <div class="color-option" data-color="#A1887F" style="background: #A1887F;"></div>
+                        <!-- Muted Red -->
+                        <!-- Custom -->
+                        <input type="color" id="trans-color" value="#8D6E63"
+                            style="height: 32px; width: 50px; padding: 0; border: none; background: none; cursor: pointer;">
+                    </div>
+                    <style>
+                        .color-option {
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                            border: 2px solid transparent;
+                            transition: transform 0.1s;
+                        }
+
+                        .color-option:hover {
+                            transform: scale(1.1);
+                        }
+
+                        .color-option.selected {
+                            border-color: var(--text-main);
+                            transform: scale(1.1);
+                        }
+                    </style>
+                </div>
+
+                <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label>出発地</label>
+                        <input type="text" id="trans-from" required>
+                    </div>
+                    <div>
+                        <label>到着地</label>
+                        <input type="text" id="trans-to" required>
+                    </div>
+                </div>
+
+
+
+                <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label>出発時間</label>
+                        <input type="text" id="trans-dep-time" placeholder="09:00">
+                    </div>
+                    <div>
+                        <label>到着時間</label>
+                        <input type="text" id="trans-arr-time" placeholder="10:30">
+                    </div>
+                </div>
+                <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label>カテゴリー</label>
+                        <select id="trans-category">
+                            <option value="">(なし)</option>
+                            <option value="電車賃">🚃 電車賃</option>
+                            <option value="バス代">🚌 バス代</option>
+                            <option value="フェリー代">🚢 フェリー代</option>
+                            <option value="飛行機代">✈️ 飛行機代</option>
+                            <option value="レンタサイクル代">🚲 レンタサイクル代</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>交通費 (¥)</label>
+                        <input type="number" id="trans-price" placeholder="500">
+                    </div>
+                </div>
+        </div>
+        <div class="input-group">
+            <label>メモ (任意)</label>
+            <textarea id="trans-memo" rows="2" placeholder="予約番号、乗り場など"
+                style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: 'Inter', sans-serif; resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('transport-modal')">キャンセル</button>
+            <button type="submit" class="btn btn-primary">追加する</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+    <script src="js/app.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="js/planner.js"></script>
+</body>
+
+</html>
